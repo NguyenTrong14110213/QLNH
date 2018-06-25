@@ -178,7 +178,7 @@ module.exports =(router,io)=>{
                                 }   
                                 res.json({ success: false, message: "Thêm bàn vào order thất bại", error:_err }); // Return error message
                               } else {
-                                res.json({ success: true, message: 'Bàn đã được set order!' }); // Return success message
+                                res.json({ success: true, message: 'Bàn đã được set order!', table:table}); // Return success message
                                 console.log("add table to order:"+table.order_id)
                                 io.sockets.emit("server-update-table",  {table});
                             }
@@ -214,10 +214,10 @@ module.exports =(router,io)=>{
                                 if (err.errors) {
                                     res.json({ success: false, message:"Xóa bàn ra khỏi order thất bại", error:err.errors });
                                 } else {
-                                  res.json({ success: false, message:"Xóa bàn ra khỏi order thất bại", err }); // Return error message
+                                  res.json({ success: false, message:"Xóa bàn ra khỏi order thất bại", error:err }); // Return error message
                                 }
                               } else {
-                                res.json({ success: true, message: 'Bàn đã được xóa order!' }); // Return success message
+                                res.json({ success: true, message: 'Bàn đã được xóa order!', table:table}); // Return success message
                                 io.sockets.emit("server-remove-order-table",  {table:table});
                             }
                         });
