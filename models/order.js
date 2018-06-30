@@ -32,10 +32,10 @@ let validId = (id) => {
 };
 
 const idValidators = [
-  {
-    validator:idLengthChecker,
-    message:'Mã bàn có tối đa là 30 ký tự!'
-  },
+  // {
+  //   validator:idLengthChecker,
+  //   message:'Mã bàn có tối đa là 30 ký tự!'
+  // },
   {
     validator: validId,
     message: 'Mã bàn không chứa ký tự đặt biệt!'
@@ -45,7 +45,7 @@ const idValidators = [
 
 
 const orderSchema = new Schema({
-  id: { type: String,unique: true, required: true , validate:idValidators },
+  id: { type: String,unique: true, required: true },
   customer_username: { type: String },
   customer_fullname: { type: String },
   waiter_username : { type: String, required: true },
