@@ -3,10 +3,7 @@ const jwt = require('jsonwebtoken'); // Các phương tiện đại diện cho c
 const config = require('../config/database');// Import cấu hình database 
 const Order = require('../models/order');
 const Table =require('../models/tables');
-<<<<<<< HEAD
 const Food = require('../models/foods');
-=======
->>>>>>> da3dc79949937b308dac514fd4c67646d10691e6
 
 module.exports = (router,io) => {
 
@@ -246,106 +243,6 @@ module.exports = (router,io) => {
             }
           });
 
-<<<<<<< HEAD
-=======
-          // cập nhật detail order theo orderID và foođID
-          router.put('/updateOrCreateDetailOrder', (req, res) => {
-              console.log("updateOrCreateDetailOrder:request:"+JSON.stringify(req.body))
-            if (!req.body.orderID) {
-              res.json({ success: false, message: 'Chưa cung cấp mã order' }); 
-            } else {
-              Order.findOne({ id: req.body.orderID }, (err, order) => {
-                if (err) {
-                  res.json({ success: false, message: err }); // Return error message
-                } else {
-                  if (!order) {
-                    res.json({ success: false, message: 'Không tìm thấy hóa đơn.' }); // Return error message
-                  } else {
-                    var foodID = req.body.foodID
-
-                    // tìm chi tiết hóa đơn có chứa món muốn tìm
-                    var i = -1
-                    for(i = order.detail_orders.length - 1; i >= 0; i--){
-                        if(order.detail_orders[i].food_id === foodID){
-                            break;
-                        }
-                    }
-
-                    // không tìm thấy
-                    if(i == -1){
-                        var newDetail = {
-                            food_id : foodID,
-                            food_name : req.body.foodName,
-                            price_unit : req.body.priceUnit,
-                            discount : req.body.discount,
-                            count : req.body.newCount
-                        }
-                        order.detail_orders.push(newDetail)
-                        order.save((err) => {
-                            if (err) {
-                              if (err.errors) {
-                                  res.json({ success: false, message: "Tạo mới chi tiết hóa đơn thất bại", error:err.errors });
-                              } else {
-                                res.json({ success: false, message: "Tạo mới chi tiết hóa đơn thất bại", err }); // Return error message
-                              }
-                            } else {
-                              res.json({ success: true, message: 'Đặt món thành công', order:order}); 
-                              io.sockets.emit("server-create-detail-order",  {order_id: req.body.orderID, detail_order:newDetail});
-                          }
-                      });
-                    }else{
-                        // cập nhật số lượng được đặt (nếu nó lớn hơn 0)
-                        var newCount = req.body.newCount
-
-                        // cờ xác định update hay remove detail order
-                        var isUpdated = true                            
-                        // hủy chi tiết hóa đơn (==0)
-                        if(newCount == 0){
-                            order.detail_orders.splice(i,1)
-                            // remove detail order
-                            isUpdated = false
-                        }else{
-                            console.log("updateOrCreateDetailOrder:update detail order")
-                            var oldCount = order.detail_orders[i].count
-                            var unitPrice = order.detail_orders[i].price_unit
-                            var discount = order.detail_orders[i].discount
-                            var extra = (unitPrice - discount) * (newCount - oldCount)
-
-                            // cập nhật lại tổng tiền trong order và số lượng đặt món trong chi tiết hóa đơn
-                            order.final_cost = order.final_cost + extra
-                            order.detail_orders[i].count = newCount
-                        }
-
-                        order.save((err) => {
-                                  if (err) {
-                                    console.log("updateOrCreateDetailOrder:update detail order failed:"+JSON.stringify(err))
-                                    if (err.errors) {
-                                        res.json({ success: false, message: "Cập nhật thông tin thất bại", error:err.errors });
-                                    } else {
-                                      res.json({ success: false, message: "Cập nhật thông tin thất bại", err }); // Return error message
-                                    }
-                                  } else {
-                                    console.log("updateOrCreateDetailOrder:update detail order success")
-                                    res.json({ success: true, message: 'Đặt món thành công', order:order}); 
-
-                                    // update detail order
-                                    if(isUpdated){
-                                        io.sockets.emit("server-update-detail-order",  {order_id: req.body.orderID, detail_order:newDetail});
-                                    }
-                                    // remove detail order
-                                    else{
-                                        io.sockets.emit("server-remove-detail-order",  {order_id: req.body.orderID, detail_order:newDetail});
-                                    }
-                                }
-                            });
-                        }
-                    }
-                  }
-              });
-            }
-          });
-
->>>>>>> da3dc79949937b308dac514fd4c67646d10691e6
           router.put('/orderTable', (req, res) => {
             if(!req.body.orderID){
                 res.json({ success: false, message: "Không có mã order"});
@@ -454,11 +351,7 @@ module.exports = (router,io) => {
                                                             order.tables.splice(index,1)
                                                             order.save((err) => {
                                                                 if(err){
-<<<<<<< HEAD
                                                                     res.json({ success: false, message: 'Hủy bàn ra khỏi order thất bại', error:err });
-=======
-                                                                    res.json({ success: false, message: 'Hủy bàn ra khỏi order thất bại:', error:err });
->>>>>>> da3dc79949937b308dac514fd4c67646d10691e6
                                                                 }else{
                                                                     res.json({ success: true, message: 'Hủy bàn thành công', table:table});
                                                                     io.sockets.emit("server-remove-table-from-order",  {order_id: order.id, table: table});
@@ -481,7 +374,6 @@ module.exports = (router,io) => {
             }
           })
 
-<<<<<<< HEAD
         router.put('/updateNumberCustomer', (req, res) => {
             if(!req.body.order_id){
                 res.json({ success: false, message: "Không có mã order"});
@@ -659,12 +551,5 @@ module.exports = (router,io) => {
         });
     });
     
-=======
->>>>>>> da3dc79949937b308dac514fd4c67646d10691e6
     return router;
 };
-
-
-
-
-
