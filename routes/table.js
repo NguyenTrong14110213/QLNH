@@ -154,10 +154,11 @@ module.exports =(router,io)=>{
       // set order id cho table
       // thêm trường error, diễn tả thông tin lỗi khi thao tác trên server
       router.post('/addTableToOrder', (req, res) => {
-        if (!req.body.id) {
+        console.log("oderFood:request:"+JSON.stringify(req.body))
+        if (!req.body.tableID) {
           res.json({ success: false, message: 'Chưa cung cấp mã bàn' }); 
         } else {
-          Table.findOne({ id: req.body.id }, (err, table) => {
+          Table.findOne({ id: req.body.tableID }, (err, table) => {
             if (err) {
               res.json({ success: false, message: "Thêm bàn vào order thất bại", error:err }); // Return error message
             } else {
@@ -167,7 +168,7 @@ module.exports =(router,io)=>{
                   if(table.order_id){
                     res.json({ success: false, message: 'Bàn đã được order' }); 
                   }else{
-                    table.order_id = req.body.order_id; 
+                    table.order_id = req.body.orderID; 
                     table.save((err) => {
                               if (err) {
                                 var _err;
@@ -192,10 +193,11 @@ module.exports =(router,io)=>{
 
       // remove order id cho table
       router.post('/removeTableFromOrder', (req, res) => {
-        if (!req.body.id) {
+        console.log("oderFood:request:"+JSON.stringify(req.body))
+        if (!req.body.tableID) {
           res.json({ success: false, message: 'Chưa cung cấp mã bàn' }); 
         } else {
-          Table.findOne({ id: req.body.id }, (err, table) => {
+          Table.findOne({ id: req.body.tableID }, (err, table) => {
             if (err) {
               // error tồn tại nghĩa là lỗi khi thao tác trên server
               res.json({ success: false, message:"Xóa bàn ra khỏi order thất bại", error:err }); // Return error message
@@ -205,7 +207,7 @@ module.exports =(router,io)=>{
               } else {
                   // bàn không có order hoặc thuộc order khác
                   // TODO: sau khi set, thử thay đổi order_id rồi remove xem có hiệu quả ?
-                  if(table.order_id == null || table.order_id != req.body.order_id){
+                  if(table.order_id == null || table.order_id != req.body.orderID){
                     res.json({ success: false, message: 'Bàn này không thuộc order xác định.' });
                   }else{
                     table.order_id = ""; 

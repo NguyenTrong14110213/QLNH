@@ -1,0 +1,31 @@
+.iwt{
+    display:block;
+    padding: 15px;
+}
+.well-right {
+    background: white;
+}
+.well-left {
+    margin-top:15px;
+    background-color: white;
+}
+
+[aria-expanded="false"] .menu__icon--open {
+    display: block;
+}
+
+[aria-expanded="false"] .menu__icon--close {
+    display: none;
+}
+
+[aria-expanded="true"] .menu__icon--open {
+    display: none;
+}
+
+[aria-expanded="true"] .menu__icon--close {
+    display: block;
+}
+
+.circle-btn {
+    border-radius: 50%;
+  }
