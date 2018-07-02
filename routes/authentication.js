@@ -169,15 +169,19 @@ module.exports=(router,io)=>{
                         res.json({success:false,message: err});
                     }else{
                         if(!user){
-                            res.json({success:false, message:'Không tìm thấy tài khoảng.'})
+                            res.json({success:false, message:'Không tìm thấy tài khoản.'})
                         }else{
-                            const validPassword =user.comparePassword(req.body.password);
-                            if(!validPassword){
-                                res.json({success:false, message:'Sai mật khẩu.'});
+                            if(!user.actived){
+                                res.json({success:false, message:'Tài khoản không hoạt động.'})
                             }else{
-                                const token = jwt.sign({ userId: user._id }, config.secret);
-                                res.json({success:true, message:'Đăng nhập thành công!', token:token,
-                                 user:{username: user.username, type_account: user.type_account}});
+                                const validPassword =user.comparePassword(req.body.password);
+                                if(!validPassword){
+                                    res.json({success:false, message:'Sai mật khẩu.'});
+                                }else{
+                                    const token = jwt.sign({ userId: user._id }, config.secret);
+                                    res.json({success:true, message:'Đăng nhập thành công!', token:token,
+                                     user:{username: user.username, type_account: user.type_account}});
+                                }
                             }
                         }
                     }
@@ -383,6 +387,33 @@ module.exports=(router,io)=>{
             }
         }).sort({'_id':-1});
         
+    });
+
+    router.post('/verify',(req, res)=>{
+        if(!req.body.username){
+            res.json({success:false, message:'Chưa nhập tên đăng nhập!'});
+        }else{
+            if(!req.body.password){
+                res.json({success:false, message:'Chưa nhập mật khẩu!'});
+            }else{
+                User.findOne({username: req.body.username.toLowerCase()},(err, user)=>{
+                    if(err){
+                        res.json({success:false,message: err});
+                    }else{
+                        if(!user){
+                            res.json({success:false, message:'Không tìm thấy tài khoản.'})
+                        }else{
+                            const validPassword =user.comparePassword(req.body.password);
+                            if(!validPassword){
+                                res.json({success:false, message:'Sai mật khẩu.'});
+                            }else{
+                                res.json({success:true, message:'Xác thực thành công!'});
+                            }
+                        }
+                    }
+                });
+            }
+        }
     });
 
     return router;

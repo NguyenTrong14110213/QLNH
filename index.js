@@ -103,6 +103,30 @@ io.on("connection", function(socket){
     // })
 });
 
+// const User = require('./models/user')
+// var user1 = new User({
+//     email : "bep12@gmail.com",
+//     username : "bep",
+//     password : 'a',
+//     fullname : "Hoàng Cầm",
+//     birthdate : new Date('1992-2-23'),
+//     gender : true,
+//     identity_card : "210392094",
+//     phone : "0172903904",
+//     address : "23 Lê Văn Hữu, Quận 10, TpHCM",
+//     url_profile : "https://baomoi-photo-1-td.zadn.vn/w700_r1/18/07/02/24/26736493/1_50717.jpg",
+//     type_account : 3, // bếp
+//     actived : true
+// })
+
+// user1.save((err)=>{
+//     if(err){
+//         console.log("create user failed:"+err)
+//     }else{
+//         console.log("create new user success")
+//     }
+// })
+
 // const CategoryFood = require('./models/categoryFood')
 // const cat1 = new CategoryFood({
 //     id : "cat0001",
