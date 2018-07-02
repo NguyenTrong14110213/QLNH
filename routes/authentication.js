@@ -1,6 +1,7 @@
 const User =require('../models/user');
 const jwt = require('jsonwebtoken');
 const config =require('../config/database');
+const Order = require('../models/order');
 
 module.exports=(router,io)=>{
     router.post('/register', (req,res)=>{
