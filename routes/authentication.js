@@ -390,6 +390,7 @@ module.exports=(router,io)=>{
     });
 
     router.post('/verify',(req, res)=>{
+        console.log("verify account")
         if(!req.body.username){
             res.json({success:false, message:'Chưa nhập tên đăng nhập!'});
         }else{

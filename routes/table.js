@@ -130,21 +130,25 @@ module.exports =(router,io)=>{
               res.json({ success: false, message: err }); // Return error message
             } else {
               if (!table) {
-                res.json({ success: false, message: 'Không tìm thấy bàn.' }); // Return error message
+                res.json({ success: false, message: 'Không tìm thấy bàn' }); // Return error message
               } else {
-                table.actived = req.body.actived; 
-                table.save((err) => {
-                          if (err) {
-                            if (err.errors) {
-                                res.json({ success: false, message: err });
-                            } else {
-                              res.json({ success: false, message: err }); // Return error message
+                if(!table.order_id && !table.order_id.trim() && req.body.actived == false){
+                    res.json({ success: false, message: 'Bàn đang order. Không thể disable' }); 
+                }else{
+                    table.actived = req.body.actived; 
+                    table.save((err) => {
+                              if (err) {
+                                if (err.errors) {
+                                    res.json({ success: false, message: err });
+                                } else {
+                                  res.json({ success: false, message: err }); // Return error message
+                                }
+                              } else {
+                                res.json({ success: true, message: 'Trạng thái đã được cập nhật!' }); // Return success message
+                                io.sockets.emit("server-update-active-table",  {table:table});
                             }
-                          } else {
-                            res.json({ success: true, message: 'Trạng thái đã được cập nhật!' }); // Return success message
-                            io.sockets.emit("server-update-active-table",  {table:table});
-                        }
-                    });
+                        });
+                    }
                 }
               }
           });
