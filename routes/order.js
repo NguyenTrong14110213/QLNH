@@ -4,6 +4,7 @@ const config = require('../config/database');// Import cấu hình database
 const Order = require('../models/order');
 const Table =require('../models/tables');
 const Food = require('../models/foods');
+const C = require('../config/globalVariables')
 
 module.exports = (router,io) => {
 
@@ -103,6 +104,7 @@ module.exports = (router,io) => {
     });
 
     router.put('/updateStatusOrder', (req, res) => {
+        console.log("updateStatusOrder():request:"+JSON.stringify(req.body))
         if (!req.body.id) {
             res.json({ success: false, message: 'Chưa cung cấp mã món' }); 
         } else {
@@ -113,13 +115,14 @@ module.exports = (router,io) => {
                 if (!order) {
                 res.json({ success: false, message: 'Không tìm thấy hóa đơn.' }); // Return error message
                 } else {
+                    var oldStatus = order.flag_status
                     var flag = req.body.flag_status; 
                     order.flag_status = flag; 
 
                     var available = true;
 
                     // nếu là muốn chuyển hóa đơn sang trạng thái sẵn sàng thanh toán
-                    if(flag == 4){
+                    if(flag == C.PAYING_FLAG){
                         // khôi phục lại các bàn trong order
 
                         var failedTables = [];
@@ -127,13 +130,13 @@ module.exports = (router,io) => {
                         // tìm tất cả các bàn đã được order
                         Table.find({ order_id: order.id }, (err, tables) => {
                             if(err){
-                                isSuccess = false;
+                                available = false;
                             }else{
                                 for(var _table of tables){
                                     _table.order_id = ""
                                     _table.save((err)=>{
                                         if(err){
-                                            isSuccess = false;
+                                            available = false;
                                             failedTables.push(_table.id)
                                         }
                                     })
@@ -143,6 +146,7 @@ module.exports = (router,io) => {
 
                         // không thể thay đổi trạng thái hóa đơn
                         if(!available){
+                            console.log("updateStatusOrder():pay order failed:tables not restore:"+JSON.stringify(failedTables))
                             res.json({ success: false, 
                                 message: "Không thể chuyển hóa đơn sang trạng thái sẵn sàng thanh toán", tables:failedTables});
                         }
@@ -151,14 +155,16 @@ module.exports = (router,io) => {
                     if(available){
                         order.save((err) => {
                                 if (err) {
+                                    console.log("updateStatusOrder():update failed:"+err)
                                     if (err.errors) {
                                         res.json({ success: false, message: err });
                                     } else {
                                         res.json({ success: false, message: err }); // Return error message
                                     }
                                 } else {
-                                    res.json({ success: true, message: 'Trạng thái hóa đơn đã được thanh toán!', order:order}); // Return success message
-                                    io.sockets.emit("server-update-status-order",  {order: order});
+                                    console.log("updateStatusOrder():update success:"+JSON.stringify(failedTables))
+                                    res.json({ success: true, message: 'Trạng thái hóa đơn đã được thanh toán!', old_status: oldStatus, order:order});
+                                    io.sockets.emit("server-update-status-order",  {old_status: oldStatus, order: order});
                                 }
                             });
                         }
@@ -344,7 +350,7 @@ module.exports = (router,io) => {
           })
 
           router.put('/removeOrderTable', (req, res) => {
-            console.log("oderFood:request:"+JSON.stringify(req.body))
+            
             if(!req.body.orderID){
                 res.json({ success: false, message: "Không có mã order"});
             }else{
@@ -573,14 +579,30 @@ module.exports = (router,io) => {
         })
 
      
-    // Load tất cả order đang chờ đến đang hoạt động
-    router.get('/getOrdersWaiting', (req, res)=>{
-        Order.find({$or:[{flag_status:1},{flag_status:2},{flag_status:3}]}, (err, orders)=>{
+    // Load tất cả order cho phục vụ
+    router.get('/getOrdersForWaiter', (req, res)=>{
+        Order.find({flag_status : {$gt: C.CREATING_FLAG, $lt: C.COMPLETE_FLAG}}, (err, orders)=>{
             if(err){
                 res.json({success:false, message:err});
             }else{
                 if(!orders){
                     res.json({success:false, message: 'Không tìm thấy hóa đơn đang chờ hay hoạt động.'});
+                }else{
+                    // console.log("getOrdersWaiting():count:"+orders.length)
+                    res.json({ success: true, orders: orders }); 
+                }
+            }
+        });
+    });
+
+    // Load tất cả order cho bếp
+    router.get('/getOrdersForChef', (req, res)=>{
+        Order.find({flag_status : {$gt: C.CREATING_FLAG, $lt: C.EATING_FLAG}}, (err, orders)=>{
+            if(err){
+                res.json({success:false, message:err});
+            }else{
+                if(!orders){
+                    res.json({success:false, message: 'Không tìm thấy hóa đơn cho bếp.'});
                 }else{
                     // console.log("getOrdersWaiting():count:"+orders.length)
                     res.json({ success: true, orders: orders }); 

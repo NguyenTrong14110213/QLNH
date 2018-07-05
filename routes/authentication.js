@@ -176,7 +176,7 @@ module.exports=(router,io)=>{
                             }else{
                                 const validPassword =user.comparePassword(req.body.password);
                                 if(!validPassword){
-                                    res.json({success:false, message:'Sai mật khẩu.'});
+                                    res.json({success:false});
                                 }else{
                                     const token = jwt.sign({ userId: user._id }, config.secret);
                                     res.json({success:true, message:'Đăng nhập thành công!', token:token,
